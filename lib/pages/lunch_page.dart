@@ -71,7 +71,7 @@ class _LunchePageState extends AuthRequiredState<LunchePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Obědy'),
+        title: const Text('Oběd'),
       ),
       body: ListView(
         children: [
@@ -85,7 +85,10 @@ class _LunchePageState extends AuthRequiredState<LunchePage> {
             textAlign: TextAlign.center,
           ),
           _loading
-              ? const Text("Loading")
+              ? const Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Center(child: CircularProgressIndicator()),
+                )
               : _reviews.isEmpty
                   ? const Text("Žádná recenze")
                   : Column(

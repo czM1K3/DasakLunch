@@ -72,7 +72,12 @@ class _LunchesPageState extends AuthRequiredState<LunchesPage> {
       ),
       body: ListView(
         children: _loading
-            ? [const Text("Loading")]
+            ? [
+                const Padding(
+                  padding: EdgeInsets.all(18),
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              ]
             : _lunches.map((lunch) {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
