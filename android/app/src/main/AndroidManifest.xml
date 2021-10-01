@@ -32,15 +32,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <intent-filter>
-              <action android:name="android.intent.action.VIEW"/>
-              <category android:name="android.intent.category.DEFAULT"/>
-              <category android:name="android.intent.category.BROWSABLE"/>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
               <data
                 android:scheme="cz.madsoft.dasaklunch"
                 android:host="login-callback" />
-            </intent-filter>
-        </activity>
-    </application>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
