@@ -1,5 +1,6 @@
-import 'package:dasaklunch/pages/account_page.dart';
 import 'package:dasaklunch/pages/login_page.dart';
+import 'package:dasaklunch/pages/lunch_page.dart';
+import 'package:dasaklunch/pages/lunches_page.dart';
 import 'package:dasaklunch/pages/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -30,7 +31,10 @@ Future<void> main() async {
     routes: <String, WidgetBuilder>{
       "/": (_) => const SplashPage(),
       "/login": (_) => const LoginPage(),
-      "/account": (_) => const AccountPage(),
+      "/lunches": (_) => const LunchesPage(),
+      "/lunch": (context) => LunchePage(
+            arguments: ModalRoute.of(context)?.settings.arguments,
+          ),
     },
   ));
 }

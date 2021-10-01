@@ -28,7 +28,7 @@ class _LoginPageState extends AuthState<LoginPage> {
     if (error != null) {
       context.showErrorSnackBar(message: error.message);
     } else {
-      context.showSnackBar(message: 'Check your email for login link!');
+      context.showSnackBar(message: 'Magický odkaz byl zaslán na Váš email!');
       _emailController.clear();
     }
 
@@ -52,11 +52,11 @@ class _LoginPageState extends AuthState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign In')),
+      appBar: AppBar(title: const Text('Přihlásit se')),
       body: ListView(
         padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
         children: [
-          const Text('Sign in via the magic link with your email below'),
+          const Text('Přihlásit se pomocí magického odkazu pomocí emailu'),
           const SizedBox(height: 18),
           TextFormField(
             controller: _emailController,
@@ -65,7 +65,7 @@ class _LoginPageState extends AuthState<LoginPage> {
           const SizedBox(height: 18),
           ElevatedButton(
             onPressed: _isLoading ? null : _signIn,
-            child: Text(_isLoading ? 'Loading' : 'Send Magic Link'),
+            child: Text(_isLoading ? 'Načítání' : 'Zaslat magický odkaz'),
           ),
         ],
       ),
