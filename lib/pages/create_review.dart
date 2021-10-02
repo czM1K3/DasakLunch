@@ -213,9 +213,13 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
                       ),
                     ),
                     _image != null
-                        ? Image.memory(
-                            _image!,
-                            fit: BoxFit.cover,
+                        ? Container(
+                            padding: EdgeInsets.all(2),
+                            margin: EdgeInsets.all(8),
+                            color: Colors.black,
+                            child: Image.memory(
+                              _image!,
+                            ),
                           )
                         : const Center(
                             child: Text("Žádný obrázek není bybrán"),
