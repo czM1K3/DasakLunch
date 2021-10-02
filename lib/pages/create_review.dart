@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
 import 'package:dasaklunch/components/auth_required_state.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart';
 import 'package:dasaklunch/utils/constants.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CreateReviewPage extends StatefulWidget {
   const CreateReviewPage({Key? key}) : super(key: key);
@@ -18,6 +20,7 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
   List<String>? _lunches;
   String? _dropdownValue;
   late final TextEditingController _textController;
+  Uint8List? _image;
 
   Future<void> _loadLunch() async {
     setState(() {
@@ -40,7 +43,6 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
       dynamic todayLunch = parsed[lunchDates.indexOf(today)];
       _lunches = List<String>.from(
           [todayLunch["lunch1"], todayLunch["lunch2"], todayLunch["lunch3"]]);
-      _dropdownValue = _lunches?.first;
     }
     setState(() {
       _loading = false;
@@ -57,10 +59,14 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
       "content": review,
       "user_uid": supabase.auth.currentUser!.id,
     }).execute();
-    setState(() {
-      _loading = false;
-    });
-    // Navigator.pop(context);
+    if (response.status != 200) {
+      context.showErrorSnackBar(message: "Něco se pokazilo");
+    } else {
+      setState(() {
+        _loading = false;
+      });
+      Navigator.pop(context);
+    }
   }
 
   Future<int> _getLunch(String lunchName) async {
@@ -78,6 +84,17 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
         await supabase.from("lunches").select().eq("name", lunchName).execute();
 
     return createdResult.data[0]["id"];
+  }
+
+  Future<Uint8List?> _takePhoto(ImageSource imageSource) async {
+    final XFile? image = await ImagePicker().pickImage(
+      source: imageSource,
+      maxHeight: 600,
+      maxWidth: 600,
+    );
+    if (image == null) return null;
+    Uint8List buffer = await image.readAsBytes();
+    return buffer;
   }
 
   @override
@@ -108,6 +125,9 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
   @override
   Widget build(BuildContext context) {
     List<String> lunches = _lunches ?? [];
+    if (_dropdownValue == null && lunches.isNotEmpty) {
+      _dropdownValue = lunches.first;
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Vytvořit recenzi'),
@@ -161,6 +181,45 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
                         ),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            child: const Icon(Icons.camera),
+                            onPressed: () async {
+                              Uint8List? image =
+                                  await _takePhoto(ImageSource.camera);
+                              setState(() {
+                                _image = image;
+                              });
+                            },
+                          ),
+                          const SizedBox(
+                            width: 4,
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              Uint8List? image =
+                                  await _takePhoto(ImageSource.gallery);
+                              setState(() {
+                                _image = image;
+                              });
+                            },
+                            child: const Icon(Icons.file_copy),
+                          )
+                        ],
+                      ),
+                    ),
+                    _image != null
+                        ? Image.memory(
+                            _image!,
+                            fit: BoxFit.cover,
+                          )
+                        : const Center(
+                            child: Text("Žádný obrázek není bybrán"),
+                          ),
                   ],
                 ),
       floatingActionButton: _loading || lunches.isEmpty
