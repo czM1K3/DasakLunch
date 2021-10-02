@@ -234,8 +234,8 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
                     ),
                     _image != null
                         ? Container(
-                            padding: EdgeInsets.all(2),
-                            margin: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(2),
+                            margin: const EdgeInsets.all(8),
                             color: Colors.black,
                             child: Image.memory(
                               _image!,

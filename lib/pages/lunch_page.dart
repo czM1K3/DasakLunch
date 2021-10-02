@@ -117,8 +117,8 @@ class _LunchePageState extends AuthRequiredState<LunchePage> {
                                   ),
                                   review.imageUrl != null
                                       ? Container(
-                                          margin: EdgeInsets.all(8),
-                                          padding: EdgeInsets.all(2),
+                                          margin: const EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(2),
                                           color: Colors.black,
                                           child:
                                               Image.network(review.imageUrl!),
