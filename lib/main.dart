@@ -1,3 +1,4 @@
+import 'package:dasaklunch/pages/create_review.dart';
 import 'package:dasaklunch/pages/login_page.dart';
 import 'package:dasaklunch/pages/lunch_page.dart';
 import 'package:dasaklunch/pages/lunches_page.dart';
@@ -35,6 +36,7 @@ Future<void> main() async {
       "/lunch": (context) => LunchePage(
             arguments: ModalRoute.of(context)?.settings.arguments,
           ),
+      "/create-review": (_) => const CreateReviewPage(),
     },
   ));
 }

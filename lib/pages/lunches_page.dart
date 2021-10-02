@@ -92,6 +92,16 @@ class _LunchesPageState extends AuthRequiredState<LunchesPage> {
                 );
               }).toList(),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushNamed(context, "/create-review");
+        },
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
     );
   }
 }

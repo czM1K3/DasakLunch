@@ -77,7 +77,7 @@ class _LunchePageState extends AuthRequiredState<LunchePage> {
         children: [
           Text(
             _lunch.name,
-            style: TextStyle(fontSize: 30),
+            style: const TextStyle(fontSize: 30),
             textAlign: TextAlign.center,
           ),
           const Text(
