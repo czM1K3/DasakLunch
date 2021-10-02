@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart';
 import 'package:dasaklunch/utils/constants.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:math';
 
 class CreateReviewPage extends StatefulWidget {
   const CreateReviewPage({Key? key}) : super(key: key);
@@ -21,6 +22,7 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
   String? _dropdownValue;
   late final TextEditingController _textController;
   Uint8List? _image;
+  String? _imageExt;
 
   Future<void> _loadLunch() async {
     setState(() {
@@ -49,24 +51,44 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
     });
   }
 
-  Future<void> _saveReview(String lunchName, String review) async {
+  Future<void> _saveReview(String lunchName, String review, Uint8List? image,
+      String? imageExt) async {
     setState(() {
       _loading = true;
     });
+
+    String? imageUrl = await _uploadImage(image, imageExt);
+
     int lunchId = await _getLunch(lunchName);
     PostgrestResponse response = await supabase.from("reviews").insert({
       "lunch_id": lunchId,
       "content": review,
       "user_uid": supabase.auth.currentUser!.id,
+      "image_url": imageUrl,
     }).execute();
-    if (response.status != 200) {
-      context.showErrorSnackBar(message: "Něco se pokazilo");
+    if (response.error != null) {
+      context.showErrorSnackBar(message: "Chyba při vytváření recenze");
     } else {
-      setState(() {
-        _loading = false;
-      });
       Navigator.pop(context);
     }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  Future<String?> _uploadImage(Uint8List? image, String? imageExt) async {
+    if (image == null || imageExt == null) return null;
+
+    Random rnd = Random();
+    String newName = '${rnd.nextInt(1000000000)}.$imageExt';
+    final uploadResponse =
+        await supabase.storage.from("images").uploadBinary(newName, image);
+    if (uploadResponse.error != null) {
+      context.showErrorSnackBar(message: "Chyba při nahrávání obrázku");
+      return null;
+    }
+    final response = supabase.storage.from("images").getPublicUrl(newName);
+    return response.data;
   }
 
   Future<int> _getLunch(String lunchName) async {
@@ -86,7 +108,7 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
     return createdResult.data[0]["id"];
   }
 
-  Future<Uint8List?> _takePhoto(ImageSource imageSource) async {
+  Future<void> _takePhoto(ImageSource imageSource) async {
     final XFile? image = await ImagePicker().pickImage(
       source: imageSource,
       maxHeight: 600,
@@ -94,7 +116,10 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
     );
     if (image == null) return null;
     Uint8List buffer = await image.readAsBytes();
-    return buffer;
+    setState(() {
+      _image = buffer;
+      _imageExt = image.path.split(".").last;
+    });
   }
 
   @override
@@ -188,24 +213,16 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
                         children: [
                           ElevatedButton(
                             child: const Icon(Icons.camera),
-                            onPressed: () async {
-                              Uint8List? image =
-                                  await _takePhoto(ImageSource.camera);
-                              setState(() {
-                                _image = image;
-                              });
+                            onPressed: () {
+                              _takePhoto(ImageSource.camera);
                             },
                           ),
                           const SizedBox(
                             width: 4,
                           ),
                           ElevatedButton(
-                            onPressed: () async {
-                              Uint8List? image =
-                                  await _takePhoto(ImageSource.gallery);
-                              setState(() {
-                                _image = image;
-                              });
+                            onPressed: () {
+                              _takePhoto(ImageSource.gallery);
                             },
                             child: const Icon(Icons.file_copy),
                           )
@@ -239,7 +256,8 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
                       message: "Musíte vyplnit obsah recenze");
                   return;
                 }
-                _saveReview(_dropdownValue!, _textController.text);
+                _saveReview(
+                    _dropdownValue!, _textController.text, _image, _imageExt);
               },
               child: const Icon(Icons.send),
               backgroundColor: Theme.of(context).primaryColor,
