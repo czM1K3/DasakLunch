@@ -93,8 +93,9 @@ class _LunchesPageState extends AuthRequiredState<LunchesPage> {
               }).toList(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, "/create-review");
+        onPressed: () async {
+          await Navigator.pushNamed(context, "/create-review");
+          Navigator.pushReplacementNamed(context, "/lunches");
         },
         child: const Icon(
           Icons.add,

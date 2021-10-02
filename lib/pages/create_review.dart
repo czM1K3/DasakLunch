@@ -33,7 +33,6 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
         headers: {'Accept': 'application/json; charset=UTF-8'});
     if (response.statusCode == 200) {
       String today = DateFormat("yyyy-MM-dd").format(DateTime.now());
-      today = "2021-10-04";
 
       Utf8Codec utf8 = const Utf8Codec();
       String decoded = utf8.decode(response.bodyBytes);
@@ -42,9 +41,13 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
       List<String> lunchDates =
           List<String>.from(parsed.map((e) => e["date"]).toList());
 
-      dynamic todayLunch = parsed[lunchDates.indexOf(today)];
-      _lunches = List<String>.from(
-          [todayLunch["lunch1"], todayLunch["lunch2"], todayLunch["lunch3"]]);
+      try {
+        dynamic todayLunch = parsed[lunchDates.indexOf(today)];
+        _lunches = List<String>.from(
+            [todayLunch["lunch1"], todayLunch["lunch2"], todayLunch["lunch3"]]);
+      } catch (e) {
+        _lunches = [];
+      }
     }
     setState(() {
       _loading = false;
@@ -114,7 +117,7 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
       maxHeight: 600,
       maxWidth: 600,
     );
-    if (image == null) return null;
+    if (image == null) return;
     Uint8List buffer = await image.readAsBytes();
     setState(() {
       _image = buffer;
@@ -163,7 +166,7 @@ class _CreateReviewPageState extends AuthRequiredState<CreateReviewPage> {
               child: Center(child: CircularProgressIndicator()),
             )
           : lunches.isEmpty
-              ? const Text("Pro dnes nebylo nic nalezeno")
+              ? const Center(child: Text("Pro dnes nebylo nic nalezeno"))
               : ListView(
                   children: [
                     Padding(

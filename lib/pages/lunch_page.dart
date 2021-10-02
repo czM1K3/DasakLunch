@@ -40,6 +40,7 @@ class _LunchePageState extends AuthRequiredState<LunchePage> {
                 id: review["id"],
                 content: review["content"],
                 date: DateTime.parse(review["created_at"]),
+                imageUrl: review["image_url"],
               ))
           .toList());
     }
@@ -90,23 +91,43 @@ class _LunchePageState extends AuthRequiredState<LunchePage> {
                   child: Center(child: CircularProgressIndicator()),
                 )
               : _reviews.isEmpty
-                  ? const Text("Žádná recenze")
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Text("Žádná recenze"),
+                      ),
+                    )
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: _reviews
-                          .map((review) => Container(
-                                margin: const EdgeInsets.all(4),
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  DateFormat("d.M.yyyy").format(review.date) +
-                                      " - " +
-                                      review.content,
-                                ),
-                              ))
+                          .map(
+                            (review) => Container(
+                              margin: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    DateFormat("d.M.yyyy").format(review.date) +
+                                        " - " +
+                                        review.content,
+                                  ),
+                                  review.imageUrl != null
+                                      ? Container(
+                                          margin: EdgeInsets.all(8),
+                                          padding: EdgeInsets.all(2),
+                                          color: Colors.black,
+                                          child:
+                                              Image.network(review.imageUrl!),
+                                        )
+                                      : Container(),
+                                ],
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
         ],
