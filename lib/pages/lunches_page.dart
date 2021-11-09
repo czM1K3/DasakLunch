@@ -1,4 +1,4 @@
-import 'package:dasaklunch/models/lunch.dart';
+import 'package:dasaklunch/components/lunches_list.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase/supabase.dart';
 import 'package:dasaklunch/components/auth_required_state.dart';
@@ -12,38 +12,15 @@ class LunchesPage extends StatefulWidget {
 }
 
 class _LunchesPageState extends AuthRequiredState<LunchesPage> {
-  late List<Lunch> _lunches;
-  bool _loading = false;
-
-  Future<void> _loadLunches() async {
-    setState(() {
-      _loading = true;
-    });
-    final response = await supabase
-        .from("lunches")
-        .select()
-        .order("name", ascending: true)
-        .execute();
-    final error = response.error;
-    if (error != null && response.status != 406) {
-      context.showErrorSnackBar(message: error.message);
-    }
-    final data = response.data;
-    if (data != null) {
-      _lunches = List<Lunch>.from(data.map((lunch) {
-        return Lunch(id: lunch["id"], name: lunch["name"]);
-      }));
-    }
-    setState(() {
-      _loading = false;
-    });
-  }
+  bool _authenticated = false;
 
   @override
   void onAuthenticated(Session session) {
     final user = session.user;
     if (user != null) {
-      _loadLunches();
+      setState(() {
+        _authenticated = true;
+      });
     }
   }
 
@@ -70,28 +47,12 @@ class _LunchesPageState extends AuthRequiredState<LunchesPage> {
           IconButton(onPressed: _signOut, icon: const Icon(Icons.logout)),
         ],
       ),
-      body: ListView(
-        children: _loading
-            ? [
-                const Padding(
-                  padding: EdgeInsets.all(18),
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              ]
-            : _lunches.map((lunch) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, "/lunch", arguments: {
-                        "lunch": lunch,
-                      });
-                    },
-                    child: Text(lunch.name),
-                  ),
-                );
-              }).toList(),
-      ),
+      body: _authenticated
+          ? const LunchesList()
+          : const Padding(
+              padding: EdgeInsets.all(18),
+              child: Center(child: CircularProgressIndicator()),
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Navigator.pushNamed(context, "/create-review");
